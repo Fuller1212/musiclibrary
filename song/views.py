@@ -5,7 +5,9 @@ from .models import Song
 from .serializers import SongSerializer
 from django.shortcuts import get_object_or_404
 
-@api_view(['GET', 'POST'])
+from song import serializers
+
+@api_view(['GET', 'POST',])
 def song_list(request):
     if request.method == 'GET':
         song = Song.objects.all()
@@ -36,5 +38,17 @@ def song_detail(request, pk):
 
     elif request.method == 'DELETE':
         song.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)    
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['PATCH'])    
+def like_count(request,pk):
+    song = get_object_or_404(Song, pk=pk)
+    if request.method == 'PATCH':
+        song.like += 1
+        serializer = SongSerializer(song, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response (serializer.data)
+
             
